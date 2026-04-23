@@ -3,270 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shall Admin | Manajemen Koleksi</title>
+    <title>Shall Store | Luxury Collection</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; }
         
         body { 
-            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), 
+            /* Wallpaper baju estetik dengan overlay krem pastel */
+            background: linear-gradient(rgba(255, 248, 240, 0.8), rgba(255, 248, 240, 0.8)), 
                         url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=1470&auto=format&fit=crop');
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
-            color: #333;
-            padding: 40px 20px;
+            color: #4a4a4a;
+            min-height: 100vh;
         }
 
-        .admin-container { max-width: 900px; margin: 0 auto; }
+        header {
+            padding: 60px 20px;
+            text-align: center;
+        }
 
-        .card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+        header h1 { 
+            font-size: 42px;
+            font-weight: 300;
+            letter-spacing: 12px;
+            color: #2c2c2c;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: #8b7e74;
+            text-transform: uppercase;
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 40px 80px;
+        }
+
+        .koleksi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 40px; 
+        }
+
+        /* Card Produk dengan gaya Glassmorphism */
+        .product-card {
+            background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 25px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
         }
 
-        h2 { margin-bottom: 25px; font-size: 22px; color: #111; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        input, textarea {
-            width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 12px; outline: none; font-size: 14px; background: #fff; transition: 0.3s;
+        .product-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(139, 126, 116, 0.2);
+            background: rgba(255, 255, 255, 0.7);
         }
 
-        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 8px; color: #777; text-transform: uppercase; }
-
-        textarea { grid-column: span 2; height: 80px; resize: none; }
-        input:focus, textarea:focus { border-color: #1a1a1a; box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
-
-        /* AREA UPLOAD VARIAN */
-        .variant-upload-container { grid-column: span 2; margin-top: 10px; }
-        .variant-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
-        .variant-box { 
-            border: 2px dashed #ddd; border-radius: 12px; height: 100px; 
-            cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; 
-            background: #fdfdfd; overflow: hidden; transition: 0.3s;
+        .img-container {
+            width: 100%;
+            height: 380px;
+            overflow: hidden;
         }
-        .variant-box:hover { border-color: #1a1a1a; background: #fff; }
-        .variant-box span { font-size: 9px; color: #bbb; text-align: center; font-weight: bold; padding: 5px; }
-        .variant-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
 
-        .variant-box input[type="file"] { display: none; }
-        
-        .btn-save {
-            background: #1a1a1a; color: white; padding: 16px; border: none; border-radius: 12px;
-            cursor: pointer; font-weight: 700; width: 100%; text-transform: uppercase; letter-spacing: 2px;
-            transition: 0.3s; font-size: 14px; margin-top: 20px;
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.6s;
         }
-        .btn-save:hover { background: #333; transform: translateY(-2px); }
 
-        /* TABLE STYLE */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 15px; font-size: 11px; text-transform: uppercase; color: #999; border-bottom: 2px solid #eee; }
-        td { padding: 15px; border-bottom: 1px solid #f5f5f5; font-size: 14px; vertical-align: middle; }
+        .product-card:hover .product-img {
+            transform: scale(1.1);
+        }
 
-        .img-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
+        .product-info {
+            padding: 25px;
+            text-align: center;
+        }
 
-        .action-btns { display: flex; gap: 8px; }
-        .btn-edit { background: #fff9e6; color: #d4a017; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .btn-del { background: #fff5f5; color: #e57373; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        
-        .btn-cancel { background: none; color: #aaa; padding: 10px; border: none; cursor: pointer; width: 100%; margin-top: 10px; font-size: 11px; text-decoration: underline; }
+        .product-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .product-price {
+            color: #8b7e74;
+            font-weight: 500;
+            font-size: 15px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .btn-wa {
+            display: inline-block;
+            background: #2c2c2c;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .btn-wa:hover {
+            background: #555;
+            letter-spacing: 2px;
+        }
+
+        .empty-msg {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 100px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+            border: 1px dashed #8b7e74;
+        }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <div class="card">
-        <h2 id="form-title">Tambah Barang Baru</h2>
-        <input type="hidden" id="edit-id">
-        
-        <div class="form-grid">
-            <div>
-                <label>Nama Produk</label>
-                <input type="text" id="p-nama" placeholder="Misal: Silk Sabrina Dress">
-            </div>
-            <div>
-                <label>Harga (Rp)</label>
-                <input type="text" id="p-harga" placeholder="Misal: 150.000">
-            </div>
-            
-            <textarea id="p-desc" placeholder="Deskripsi singkat produk..."></textarea>
+<header>
+    <h1>SHALL STORE</h1>
+    <p>Minimalist Hijab & Shirt</p>
+</header>
 
-            <div class="variant-upload-container">
-                <label>Foto Varian (Box 1 = Foto Utama)</label>
-                <div class="variant-grid">
-                    <script>
-                        for(let i=0; i<5; i++) {
-                            document.write(`
-                                <div class="variant-box" onclick="document.getElementById('file-${i}').click()">
-                                    <img id="preview-${i}" style="display:none">
-                                    <span id="text-${i}">${i===0 ? 'FOTO UTAMA' : 'VARIAN '+(i+1)}</span>
-                                    <input type="file" id="file-${i}" accept="image/*" onchange="handleFileSelect(this, ${i})">
-                                </div>
-                            `);
-                        }
-                    </script>
-                </div>
-            </div>
+<div class="container">
+    <div id="koleksi-list" class="koleksi-grid">
         </div>
-        
-        <button class="btn-save" id="btn-save" onclick="simpan()">Simpan Barang</button>
-        <button class="btn-cancel" id="btn-cancel" style="display:none" onclick="resetForm()">Batalkan Edit</button>
-    </div>
-
-    <div class="card">
-        <h2>Daftar Koleksi</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Foto</th>
-                    <th>Nama Barang</th>
-                    <th>Harga</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="tabel-barang"></tbody>
-        </table>
-    </div>
 </div>
 
 <script>
-    let variantImages = ["", "", "", "", ""];
+    function loadProducts() {
+        const grid = document.getElementById('koleksi-list');
+        const data = JSON.parse(localStorage.getItem('shall_variants')) || [];
 
-    function handleFileSelect(input, index) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                variantImages[index] = e.target.result;
-                const img = document.getElementById('preview-' + index);
-                img.src = e.target.result;
-                img.style.display = 'block';
-                document.getElementById('text-' + index).style.display = 'none';
-            };
-            reader.readAsDataURL(file);
+        if (data.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-msg">
+                    <p style="color: #8b7e74;">Koleksi sedang dipersiapkan. <br> Silakan upload melalui dashboard.html</p>
+                </div>`;
+            return;
         }
-    }
 
-    function loadData() {
-        // --- PROSES MIGRASI DATA LAMA ---
-        const oldData = JSON.parse(localStorage.getItem('shall_products')) || [];
-        let newData = JSON.parse(localStorage.getItem('shall_variants')) || [];
-
-        if (oldData.length > 0 && newData.length === 0) {
-            newData = oldData.map(item => ({
-                nama: item.nama,
-                harga: item.harga,
-                desc: item.desc || "",
-                variants: [item.foto] // Ambil foto tunggal ke sistem varian
-            }));
-            localStorage.setItem('shall_variants', JSON.stringify(newData));
-            localStorage.removeItem('shall_products'); // Bersihkan gudang lama
-        }
-        // --- END MIGRASI ---
-
-        const tbody = document.getElementById('tabel-barang');
-        tbody.innerHTML = newData.length ? "" : "<tr><td colspan='4' style='text-align:center; color:#ccc; padding:30px;'>Belum ada produk di gudang baru.</td></tr>";
-        
-        newData.forEach((p, index) => {
-            const mainImg = p.variants[0] || 'https://via.placeholder.com/50';
-            tbody.innerHTML += `
-                <tr>
-                    <td><img src="${mainImg}" class="img-mini"></td>
-                    <td><b>${p.nama}</b></td>
-                    <td>Rp ${p.harga}</td>
-                    <td class="action-btns">
-                        <button class="btn-edit" onclick="isiForm(${index})">Ubah</button>
-                        <button class="btn-del" onclick="hapus(${index})">Hapus</button>
-                    </td>
-                </tr>
+        grid.innerHTML = "";
+        data.forEach((p) => {
+            const mainImg = p.variants[0] || 'https://via.placeholder.com/400x500?text=Shall+Store';
+            grid.innerHTML += `
+                <div class="product-card">
+                    <div class="img-container">
+                        <img src="${mainImg}" class="product-img" alt="${p.nama}">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${p.nama}</h3>
+                        <span class="product-price">Rp ${p.harga}</span>
+                        <a href="https://wa.me/628123456789?text=Halo Shall Store, saya tertarik dengan ${p.nama}" target="_blank" class="btn-wa">BELI SEKARANG</a>
+                    </div>
+                </div>
             `;
         });
     }
 
-    function simpan() {
-        const id = document.getElementById('edit-id').value;
-        const filtered = variantImages.filter(img => img !== "");
-
-        const produk = {
-            nama: document.getElementById('p-nama').value,
-            harga: document.getElementById('p-harga').value,
-            desc: document.getElementById('p-desc').value,
-            variants: filtered
-        };
-
-        if(!produk.nama || filtered.length === 0) return alert("Nama dan Minimal 1 Foto wajib diisi!");
-
-        let data = JSON.parse(localStorage.getItem('shall_variants')) || [];
-
-        if(id === "") data.push(produk);
-        else data[id] = produk;
-
-        localStorage.setItem('shall_variants', JSON.stringify(data));
-        resetForm();
-        loadData();
-        alert("Gudang Shall Store diperbarui!");
-    }
-
-    function isiForm(index) {
-        const data = JSON.parse(localStorage.getItem('shall_variants'))[index];
-        document.getElementById('edit-id').value = index;
-        document.getElementById('p-nama').value = data.nama;
-        document.getElementById('p-harga').value = data.harga;
-        document.getElementById('p-desc').value = data.desc;
-
-        resetVariantBoxes();
-        data.variants.forEach((img, i) => {
-            if(i < 5) {
-                variantImages[i] = img;
-                const preview = document.getElementById('preview-' + i);
-                preview.src = img;
-                preview.style.display = 'block';
-                document.getElementById('text-' + i).style.display = 'none';
-            }
-        });
-
-        document.getElementById('form-title').innerText = "Edit: " + data.nama;
-        document.getElementById('btn-save').innerText = "Update Barang";
-        document.getElementById('btn-cancel').style.display = "block";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function hapus(index) {
-        if(confirm("Hapus item ini dari koleksi?")) {
-            let data = JSON.parse(localStorage.getItem('shall_variants'));
-            data.splice(index, 1);
-            localStorage.setItem('shall_variants', JSON.stringify(data));
-            loadData();
-        }
-    }
-
-    function resetVariantBoxes() {
-        for(let i=0; i<5; i++) {
-            document.getElementById('preview-' + i).style.display = 'none';
-            document.getElementById('text-' + i).style.display = 'block';
-            document.getElementById('file-' + i).value = "";
-        }
-    }
-
-    function resetForm() {
-        document.getElementById('edit-id').value = "";
-        document.getElementById('p-nama').value = "";
-        document.getElementById('p-harga').value = "";
-        document.getElementById('p-desc').value = "";
-        resetVariantBoxes();
-        variantImages = ["", "", "", "", ""];
-        document.getElementById('form-title').innerText = "Tambah Barang Baru";
-        document.getElementById('btn-save').innerText = "Simpan Barang";
-        document.getElementById('btn-cancel').style.display = "none";
-    }
-
-    window.onload = loadData;
+    window.onload = loadProducts;
 </script>
 </body>
 </html>
