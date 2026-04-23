@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shall Store - Koleksi Terbaru</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body { 
+            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), 
+                        url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=1470&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #333; 
+        }
+        
+        header { 
+            background: rgba(255, 255, 255, 0.95); padding: 35px; text-align: center; 
+            border-bottom: 1px solid #ddd; margin-bottom: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        header h1 { letter-spacing: 5px; text-transform: uppercase; font-weight: 700; color: #111; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        
+        .product-card { 
+            background: #fff; border-radius: 12px; overflow: hidden; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.05); transition: transform 0.3s ease;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-card img { width: 100%; height: 350px; object-fit: cover; }
+        
+        .info { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .info h3 { font-size: 20px; margin-bottom: 8px; color: #111; font-weight: 600; }
+        .info .price { font-weight: bold; color: #2ecc71; font-size: 17px; margin-bottom: 10px; }
+        .info .desc { font-size: 14px; color: #555; margin-bottom: 25px; line-height: 1.5; }
+
+        .btn-order { 
+            background: #1a1a1a; color: #fff; text-align: center; padding: 14px; 
+            border: none; cursor: pointer; border-radius: 8px; font-weight: 700; 
+            text-transform: uppercase; font-size: 13px; letter-spacing: 1px; transition: 0.2s;
+        }
+        .btn-order:hover { background: #444; }
+
+        /* MODAL POPUP */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(5px); }
+        .modal-box { background: #fff; padding: 30px; width: 90%; max-width: 450px; border-radius: 25px; display: flex; flex-direction: column; gap: 10px; }
+
+        .modal-preview-img { width: 100%; height: 250px; object-fit: cover; border-radius: 15px; margin-bottom: 10px; }
+
+        .variant-selector { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .variant-thumb { width: 55px; height: 55px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .variant-thumb.active { border-color: #111; transform: scale(1.1); }
+
+        .size-grid { display: flex; gap: 8px; margin-bottom: 10px; }
+        .chip { padding: 8px 15px; border: 1px solid #eee; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
+        .chip.active { background: #111; color: #fff; border-color: #111; }
+
+        label { font-size: 10px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+        input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; outline: none; background: #fafafa; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>SHALL STORE</h1>
+</header>
+
+<div class="container">
+    <div class="grid" id="product-grid"></div>
+</div>
+
+<div id="orderModal" class="modal">
+    <div class="modal-box">
+        <img id="modal-main-img" class="modal-preview-img" src="">
+        <h3 id="order-title">Nama Produk</h3>
+        
+        <label>Pilih Varian Warna</label>
+        <div class="variant-selector" id="variant-list"></div>
+
+        <label>Pilih Ukuran</label>
+        <div class="size-grid" id="size-list">
+            <div class="chip" onclick="selectSize(this, 'S')">S</div>
+            <div class="chip active" onclick="selectSize(this, 'M')">M</div>
+            <div class="chip" onclick="selectSize(this, 'L')">L</div>
+            <div class="chip" onclick="selectSize(this, 'XL')">XL</div>
+        </div>
+
+        <label>Nama Lengkap</label>
+        <input type="text" id="cust-name" placeholder="Siapa nama Kakak?">
+        
+        <button class="btn-order" style="margin-top:15px;" onclick="submitOrder()">Konfirmasi Pesanan</button>
+        <button onclick="closeModal()" style="border:none; background:none; color:#ccc; font-weight:bold; cursor:pointer; font-size:11px; margin-top:5px;">BATALKAN</button>
+    </div>
+</div>
+
+<script>
+    let currentData = [];
+    let selectedIdx = null;
+    let selectedSize = "M";
+    let selectedImg = "";
+
+    function render() {
+        const grid = document.getElementById('product-grid');
+        // Hanya memanggil data dari input Admin (shall_variants)
+        currentData = JSON.parse(localStorage.getItem('shall_variants')) || [];
+        
+        grid.innerHTML = "";
+        
+        if (currentData.length === 0) {
+            grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:50px; color:#aaa;'>Belum ada koleksi yang diupload.</div>";
+            return;
+        }
+
+        currentData.forEach((p, index) => {
+            const displayImg = p.variants[0] || 'https://via.placeholder.com/300x400?text=No+Image';
+            grid.innerHTML += `
+            <div class="product-card">
+                <img src="${displayImg}">
+                <div class="info">
+                    <h3>${p.nama}</h3>
+                    <p class="price">Rp ${p.harga}</p>
+                    <p class="desc">${p.desc}</p>
+                    <button class="btn-order" onclick="openModal(${index})">Pesan Disini</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function openModal(index) {
+        const p = currentData[index];
+        selectedIdx = index;
+        selectedImg = p.variants[0];
+
+        document.getElementById('order-title').innerText = p.nama;
+        document.getElementById('modal-main-img').src = selectedImg;
+        
+        const vList = document.getElementById('variant-list');
+        vList.innerHTML = "";
+        p.variants.forEach((img, i) => {
+            vList.innerHTML += `
+                <img src="${img}" class="variant-thumb ${i===0?'active':''}" 
+                     onclick="changeVariant(this, '${img}')">
+            `;
+        });
+
+        document.getElementById('orderModal').style.display = 'flex';
+    }
+
+    function changeVariant(el, imgPath) {
+        document.getElementById('modal-main-img').src = imgPath;
+        selectedImg = imgPath;
+        document.querySelectorAll('.variant-thumb').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function selectSize(el, size) {
+        document.querySelectorAll('.chip').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+        selectedSize = size;
+    }
+
+    function closeModal() { document.getElementById('orderModal').style.display = 'none'; }
+
+    function submitOrder() {
+        const name = document.getElementById('cust-name').value;
+        if(!name) return alert("Mohon masukkan nama Kakak!");
+        
+        alert(`PESANAN BERHASIL!\n\nProduk: ${currentData[selectedIdx].nama}\nUkuran: ${selectedSize}\n\nTerima kasih, Kak ${name}!`);
+        closeModal();
+    }
+
+    window.onload = render;
+</script>
+</body>
+</html>
