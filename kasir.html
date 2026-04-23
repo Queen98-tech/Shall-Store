@@ -6,43 +6,31 @@
     <title>Sistem Kasir Online - Simple POS</title>
     <style>
         :root {
-            --primary: #6f42c1; /* Warna Ungu sesuai branding Shall Store */
+            --primary: #6f42c1;
             --light: #f8f9fa;
             --dark: #343a40;
             --success: #28a745;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
         .container { max-width: 1100px; margin: auto; display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
-        
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        h2 { margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; }
-        input:focus { border-color: var(--primary); }
-        
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
-        .btn-add { background: var(--primary); color: white; width: 100%; padding: 15px; font-size: 16px; margin-top: 10px; }
-        .btn-add:hover { background: #5a32a3; }
-        .btn-checkout { background: var(--success); color: white; width: 100%; padding: 18px; font-size: 18px; margin-top: 15px; }
-        .btn-report { background: #17a2b8; color: white; width: 100%; padding: 12px; margin-top: 10px; }
+        h2 { margin-top: 0; color: var(--primary); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: var(--light); text-align: left; padding: 12px; color: var(--dark); border-bottom: 2px solid #eee; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; }
 
-        .total-box { background: #e9ecef; padding: 20px; border-radius: 10px; text-align: center; margin: 15px 0; }
-        .total-price { font-size: 32px; font-weight: bold; color: var(--dark); }
-        
-        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
+        button { border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-add { background: var(--primary); color: white; width: 100%; padding: 15px; }
+        .btn-checkout { background: var(--success); color: white; width: 100%; padding: 18px; margin-top: 15px; }
 
-        /* Styling Nota saat di-print */
+        table { width: 100%; margin-top: 20px; }
+
+        .total-box { background: #e9ecef; padding: 20px; text-align: center; border-radius: 10px; }
+
         #nota-area { display: none; }
         @media print {
             body * { visibility: hidden; }
             #nota-area, #nota-area * { visibility: visible; }
-            #nota-area { position: absolute; left: 0; top: 0; width: 100%; display: block; background: white; }
+            #nota-area { position: absolute; left: 0; top: 0; width: 100%; display: block; }
         }
     </style>
 </head>
@@ -51,191 +39,100 @@
 <div class="container">
     <div class="card">
         <h2>🛒 Kasir Digital</h2>
-        <div class="form-group">
-            <label>Nama Barang</label>
-            <input type="text" id="itemName" placeholder="Ketik nama barang..." list="barang-umum">
-            <datalist id="barang-umum">
-                <option value="T-Shirt Purple">
-                <option value="Oversized Hoodie">
-                <option value="Silk Dress">
-                <option value="Denim Jacket">
-            </datalist>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex: 2;">
-                <label>Harga Satuan (Rp)</label>
-                <input type="number" id="itemPrice" placeholder="0">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>Jumlah (Qty)</label>
-                <input type="number" id="itemQty" value="1" min="1">
-            </div>
-        </div>
-        <button class="btn-add" onclick="tambahBarang()">+ Tambahkan ke Daftar</button>
+        <input type="text" id="itemName" placeholder="Nama Barang">
+        <input type="number" id="itemPrice" placeholder="Harga">
+        <input type="number" id="itemQty" value="1">
+        <button class="btn-add" onclick="tambahBarang()">Tambah</button>
 
         <table>
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Harga</th>
-                    <th>Qty</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="cartBody">
-                </tbody>
+            <tbody id="cartBody"></tbody>
         </table>
     </div>
 
     <div class="card">
-        <h2>💰 Pembayaran</h2>
         <div class="total-box">
-            <div style="font-size: 14px; color: #666;">TOTAL BELANJA</div>
-            <div class="total-price" id="displayTotal">Rp 0</div>
-        </div>
-        
-        <div class="form-group">
-            <label>Uang Tunai Pelanggan</label>
-            <input type="number" id="cashIn" oninput="hitungKembalian()" placeholder="0">
-        </div>
-        
-        <div style="font-size: 18px; margin-bottom: 10px;">
-            Kembalian: <strong id="displayKembalian" style="color: #d9534f;">Rp 0</strong>
+            <div id="displayTotal">Rp 0</div>
         </div>
 
-        <button class="btn-checkout" onclick="prosesSelesai()">Selesaikan & Cetak Nota</button>
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-        <button class="btn-report" onclick="cekRekapan()">📊 Lihat Rekap Hari Ini</button>
+        <input type="number" id="cashIn" oninput="hitungKembalian()" placeholder="Uang">
+        <div id="displayKembalian">Rp 0</div>
+
+        <button class="btn-checkout" onclick="prosesSelesai()">Cetak</button>
     </div>
 </div>
 
 <div id="nota-area">
-    <div style="width: 80mm; margin: auto; padding: 20px; font-family: monospace; border: 1px solid #eee;">
-        <div style="text-align: center;">
-            <h3 style="margin: 0; text-transform: uppercase;">SHALL STORE</h3>
-            <p style="font-size: 11px; margin: 5px 0;">Jl. Koleksi Terbaru No. 1, Indonesia</p>
-            <p style="font-size: 11px;" id="notaWaktu"></p>
-        </div>
-        <p>--------------------------------</p>
-        <div id="notaItems" style="font-size: 12px; line-height: 1.5;"></div>
-        <p>--------------------------------</p>
-        <div style="text-align: right; font-size: 13px;">
-            <div id="notaTotal"></div>
-            <div id="notaBayar"></div>
-            <div id="notaKembali" style="font-weight: bold;"></div>
-        </div>
-        <p>--------------------------------</p>
-        <div style="text-align: center; font-size: 11px;">
-            <p>Terima kasih sudah berbelanja!</p>
-            <p>Barang yang sudah dibeli tidak dapat ditukar.</p>
-        </div>
+    <div style="width: 80mm; margin: auto; font-family: monospace;">
+        <h3>SHALL STORE</h3>
+        <div id="notaItems"></div>
+        <div id="notaTotal"></div>
+        <div id="notaBayar"></div>
+        <div id="notaKembali"></div>
     </div>
 </div>
 
 <script>
-    let keranjang = [];
-    let grandTotal = 0;
+let keranjang = [];
+let grandTotal = 0;
 
-    function formatRupiah(angka) {
-        return "Rp " + new Intl.NumberFormat('id-ID').format(angka);
-    }
+function formatRupiah(angka) {
+    return "Rp " + new Intl.NumberFormat('id-ID').format(angka);
+}
 
-    function tambahBarang() {
-        const nama = document.getElementById('itemName').value;
-        const harga = parseInt(document.getElementById('itemPrice').value);
-        const qty = parseInt(document.getElementById('itemQty').value);
+// ✅ FORMAT TAMBAH .000
+function formatRibuanKeFull(angka) {
+    return "Rp " + (angka * 1000).toLocaleString('id-ID');
+}
 
-        if (!nama || !harga || qty < 1) {
-            alert("Lengkapi data barang dulu ya!");
-            return;
-        }
+function tambahBarang() {
+    const nama = itemName.value;
+    const harga = parseInt(itemPrice.value);
+    const qty = parseInt(itemQty.value);
 
-        const total = harga * qty;
-        keranjang.push({ nama, harga, qty, total });
-        
-        updateTabel();
-        
-        // Reset input setelah tambah
-        document.getElementById('itemName').value = "";
-        document.getElementById('itemPrice').value = "";
-        document.getElementById('itemQty').value = "1";
-    }
+    const total = harga * qty;
+    keranjang.push({ nama, harga, qty, total });
 
-    function updateTabel() {
-        const body = document.getElementById('cartBody');
-        body.innerHTML = "";
-        grandTotal = 0;
+    updateTabel();
+}
 
-        keranjang.forEach((item, index) => {
-            grandTotal += item.total;
-            body.innerHTML += `
-                <tr>
-                    <td>${item.nama}</td>
-                    <td>${formatRupiah(item.harga)}</td>
-                    <td>${item.qty}</td>
-                    <td>${formatRupiah(item.total)}</td>
-                </tr>
-            `;
-        });
+function updateTabel() {
+    cartBody.innerHTML = "";
+    grandTotal = 0;
 
-        document.getElementById('displayTotal').innerText = formatRupiah(grandTotal);
-        hitungKembalian();
-    }
+    keranjang.forEach(item => {
+        grandTotal += item.total;
+        cartBody.innerHTML += `<tr>
+            <td>${item.nama}</td>
+            <td>${formatRupiah(item.total)}</td>
+        </tr>`;
+    });
 
-    function hitungKembalian() {
-        const cash = parseInt(document.getElementById('cashIn').value) || 0;
-        const kembali = cash - grandTotal;
-        const elKembali = document.getElementById('displayKembalian');
-        
-        elKembali.innerText = formatRupiah(kembali);
-        elKembali.style.color = kembali < 0 ? "#d9534f" : "#28a745";
-    }
+    displayTotal.innerText = formatRupiah(grandTotal);
+}
 
-    function prosesSelesai() {
-        if (keranjang.length === 0) return alert("Keranjang masih kosong!");
-        const cash = parseInt(document.getElementById('cashIn').value) || 0;
-        if (cash < grandTotal) return alert("Uang tunai kurang!");
+function hitungKembalian() {
+    const cash = parseInt(cashIn.value) || 0;
+    displayKembalian.innerText = formatRupiah(cash - grandTotal);
+}
 
-        // 1. Isi Data Nota
-        const skrg = new Date().toLocaleString('id-ID');
-        document.getElementById('notaWaktu').innerText = skrg;
-        
-        let listNota = "";
-        keranjang.forEach(item => {
-            listNota += `<div>${item.nama} x${item.qty} <span style="float:right">${formatRupiah(item.total)}</span></div>`;
-        });
-        document.getElementById('notaItems').innerHTML = listNota;
-        document.getElementById('notaTotal').innerText = "TOTAL: " + formatRupiah(grandTotal);
-        document.getElementById('notaBayar').innerText = "BAYAR: " + formatRupiah(cash);
-        document.getElementById('notaKembali').innerText = "KEMBALI: " + formatRupiah(cash - grandTotal);
+function prosesSelesai() {
+    let list = "";
 
-        // 2. Simpan ke Rekap (LocalStorage)
-        const rekap = JSON.parse(localStorage.getItem('shall_rekap')) || [];
-        rekap.push({ waktu: skrg, total: grandTotal, items: keranjang.length });
-        localStorage.setItem('shall_rekap', JSON.stringify(rekap));
+    keranjang.forEach(item => {
+        // ✅ NOTA PAKE .000
+        list += `<div>${item.nama} - ${formatRibuanKeFull(item.total)}</div>`;
+    });
 
-        // 3. Print
-        window.print();
+    notaItems.innerHTML = list;
 
-        // 4. Reset Aplikasi
-        keranjang = [];
-        updateTabel();
-        document.getElementById('cashIn').value = "";
-    }
+    // ✅ SEMUA NOTA FORMAT .000
+    notaTotal.innerText = "TOTAL: " + formatRibuanKeFull(grandTotal);
+    notaBayar.innerText = "BAYAR: " + formatRibuanKeFull(parseInt(cashIn.value));
+    notaKembali.innerText = "KEMBALI: " + formatRibuanKeFull(parseInt(cashIn.value) - grandTotal);
 
-    function cekRekapan() {
-        const rekap = JSON.parse(localStorage.getItem('shall_rekap')) || [];
-        if (rekap.length === 0) return alert("Belum ada transaksi hari ini.");
-
-        let pesan = "📊 REKAP TRANSAKSI HARI INI:\n\n";
-        let totalOmset = 0;
-        rekap.forEach((r, i) => {
-            pesan += `${i+1}. [${r.waktu}] - ${formatRupiah(r.total)} (${r.items} item)\n`;
-            totalOmset += r.total;
-        });
-        pesan += `\n--------------------------\nTOTAL OMSET: ${formatRupiah(totalOmset)}`;
-        alert(pesan);
-    }
+    window.print();
+}
 </script>
+
 </body>
 </html>
