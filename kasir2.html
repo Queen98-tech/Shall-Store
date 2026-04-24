@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kasir Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f3fb; min-height: 100vh; padding: 24px 16px; color: #1a1a2e; }
+h1 { font-size: 20px; font-weight: 600; color: #534AB7; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.wrap { max-width: 900px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+.card { background: #fff; border-radius: 16px; padding: 20px; border: 1px solid #e8e6f5; }
+label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+input[type=text], input[type=number] {
+  width: 100%; padding: 10px 14px; font-size: 14px; font-family: inherit;
+  border: 1px solid #dddaf5; border-radius: 10px; outline: none;
+  background: #fafafa; color: #1a1a2e; transition: border 0.15s;
+}
+input:focus { border-color: #534AB7; background: #fff; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn { width: 100%; padding: 11px; font-size: 14px; font-weight: 600; font-family: inherit; border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.88; }
+.btn-ungu { background: #534AB7; color: #fff; }
+.btn-hijau { background: #1D9E75; color: #fff; }
+.btn-abu { background: #f0eff8; color: #666; font-size: 13px; }
+.metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.metric { background: #f4f3fb; border-radius: 12px; padding: 14px 16px; }
+.metric-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.metric-val { font-size: 18px; font-weight: 600; color: #1a1a2e; }
+.metric-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.total-box { background: #f4f3fb; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px; }
+.total-box .lbl { font-size: 11px; color: #888; margin-bottom: 4px; }
+.total-box .val { font-size: 26px; font-weight: 600; color: #534AB7; }
+.divider { border: none; border-top: 1px solid #ede9f8; margin: 12px 0; }
+.sec-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.item-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0eff8; font-size: 13px; }
+.item-row:last-child { border-bottom: none; }
+.item-name { font-weight: 500; }
+.item-sub { font-size: 11px; color: #aaa; }
+.del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 18px; line-height: 1; padding: 0 4px; }
+.del-btn:hover { color: #e24b4a; }
+.tx-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0eff8; font-size: 12px; color: #888; }
+.tx-row:last-child { border-bottom: none; }
+.tx-total { font-weight: 600; color: #1a1a2e; font-size: 13px; }
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600; background: #eaf3de; color: #3b6d11; }
+.empty { text-align: center; color: #ccc; font-size: 13px; padding: 20px 0; }
+.two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab { padding: 7px 18px; font-size: 13px; font-family: inherit; font-weight: 500; border: 1px solid #dddaf5; border-radius: 10px; background: #fff; cursor: pointer; color: #888; transition: all 0.15s; }
+.tab.active { background: #534AB7; color: #fff; border-color: #534AB7; }
+.bar-wrap { display: flex; align-items: flex-end; gap: 8px; height: 110px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar-val { font-size: 9px; color: #aaa; }
+.bar { width: 100%; border-radius: 4px 4px 0 0; }
+.bar-lbl { font-size: 10px; color: #aaa; }
+.bar-lbl.today { color: #534AB7; font-weight: 600; }
+.reset-link { font-size: 11px; color: #e24b4a; background: none; border: none; cursor: pointer; font-family: inherit; }
+.kembalian-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.btn-print { background: #1a1a2e; color: #fff; }
+.btn-print:hover { opacity: 0.85; }
+
+/* STRUK PRINT */
+#struk-print { display: none; }
+@media print {
+  body * { visibility: hidden; }
+  #struk-print, #struk-print * { visibility: visible; }
+  #struk-print {
+    display: block !important;
+    position: fixed; top: 0; left: 0;
+    width: 80mm; padding: 8mm;
+    font-family: 'Courier New', monospace;
+    font-size: 12px; color: #000;
+    background: #fff;
+  }
+  .struk-toko { text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+  .struk-sub { text-align: center; font-size: 11px; margin-bottom: 8px; }
+  .struk-line { border-top: 1px dashed #000; margin: 6px 0; }
+  .struk-row { display: flex; justify-content: space-between; margin: 2px 0; }
+  .struk-row.bold { font-weight: bold; }
+  .struk-footer { text-align: center; margin-top: 8px; font-size: 11px; }
+}
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+  .metric-grid { grid-template-columns: 1fr 1fr; }
+  .two-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('kasir')">🛒 Kasir</button>
+    <button class="tab" onclick="switchTab('rekap')">📊 Rekap & Omset</button>
+  </div>
+
+  <!-- KASIR -->
+  <div id="tab-kasir">
+    <div class="grid">
+      <div class="card">
+        <h1>🛒 Kasir Digital</h1>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:12px;">
+          <div><label>Nama Produk</label><input type="text" id="nama" placeholder="Contoh: Nasi Goreng" /></div>
+          <div><label>Harga (Rp)</label><input type="number" id="harga" placeholder="0" min="0" /></div>
+          <div class="row2">
+            <div><label>Jumlah</label><input type="number" id="qty" value="1" min="1" /></div>
+            <div style="display:flex;align-items:flex-end;"><button class="btn btn-ungu" onclick="tambahItem()" style="margin-top:0;">+ Tambah</button></div>
+          </div>
+        </div>
+        <p class="sec-label">Item Pesanan</p>
+        <div id="daftar-item"><div class="empty">Belum ada item</div></div>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="total-box">
+          <div class="lbl">Total Belanja</div>
+          <div class="val" id="total-display">Rp 0</div>
+        </div>
+        <div><label>Nominal Bayar (Rp)</label><input type="number" id="bayar" placeholder="0" min="0" oninput="hitungKembalian()" /></div>
+        <div class="kembalian-row">
+          <span style="color:#888;">Kembalian</span>
+          <span id="kembalian-display" style="font-weight:600;">Rp 0</span>
+        </div>
+        <button class="btn btn-hijau" onclick="selesaiTransaksi()">✓ Selesai &amp; Simpan</button>
+        <button class="btn btn-print" onclick="cetakNota()">🖨️ Cetak Nota</button>
+        <button class="btn btn-abu" onclick="resetKasir()">Batal / Reset</button>
+        <hr class="divider" />
+        <p class="sec-label">Transaksi Hari Ini</p>
+        <div id="tx-hari-ini"><div class="empty" style="padding:10px 0;">Belum ada</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REKAP -->
+  <div id="tab-rekap" style="display:none;">
+    <div class="metric-grid">
+      <div class="metric">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="metric-label">Omset Hari Ini</div>
+          <button class="reset-link" onclick="resetHari()">Reset</button>
+        </div>
+        <div class="metric-val" id="r-omset-hari">Rp 0</div>
+        <div class="metric-sub" id="r-tx-hari">0 transaksi</div>
+      </div>
+      <div class="metric">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="metric-label">Omset Bulan Ini</div>
+          <button class="reset-link" onclick="resetBulan()">Reset</button>
+        </div>
+        <div class="metric-val" id="r-omset-bulan">Rp 0</div>
+        <div class="metric-sub" id="r-tx-bulan">0 transaksi</div>
+      </div>
+      <div class="metric">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="metric-label">Total Semua</div>
+          <button class="reset-link" onclick="resetSemua()">Reset</button>
+        </div>
+        <div class="metric-val" id="r-omset-total">Rp 0</div>
+        <div class="metric-sub" id="r-tx-total">0 transaksi</div>
+      </div>
+    </div>
+
+    <div class="two-grid" style="margin-bottom:16px;">
+      <div class="card">
+        <p class="sec-label" style="margin-bottom:10px;">Produk Terlaris</p>
+        <div id="rekap-produk"><div class="empty">Belum ada data</div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <p class="sec-label" style="margin:0;">Riwayat Transaksi</p>
+          <button class="reset-link" onclick="resetSemua()">Reset semua</button>
+        </div>
+        <div id="riwayat-tx"><div class="empty">Belum ada transaksi</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="sec-label" style="margin-bottom:12px;">Grafik Omset — 7 Hari Terakhir</p>
+      <div class="bar-wrap" id="grafik-bar"></div>
+      <div style="display:flex;gap:8px;margin-top:6px;" id="grafik-lbl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STRUK PRINT (hanya tampil saat print) -->
+<div id="struk-print"></div>
+
+<script>
+let items = [];
+let txStore = [];
+try { txStore = JSON.parse(localStorage.getItem('kasir_v3') || '[]'); } catch(e) {}
+
+function fmt(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID') + ',000'; }
+function today() { return new Date().toLocaleDateString('id-ID'); }
+function thisMonth() { const d = new Date(); return d.getMonth() + '-' + d.getFullYear(); }
+function txMonth(t) { const p = t.tanggal.split('/'); return (parseInt(p[1])-1) + '-' + p[2]; }
+function nowTime() { return new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'}); }
+function save() { try { localStorage.setItem('kasir_v3', JSON.stringify(txStore)); } catch(e) {} }
+
+function switchTab(t) {
+  document.getElementById('tab-kasir').style.display = t === 'kasir' ? 'block' : 'none';
+  document.getElementById('tab-rekap').style.display = t === 'rekap' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', (i===0&&t==='kasir')||(i===1&&t==='rekap')));
+  if (t === 'rekap') renderRekap();
+}
+
+function getTotal() { return items.reduce((s,i) => s + i.harga * i.qty, 0); }
+
+function renderItems() {
+  const el = document.getElementById('daftar-item');
+  el.innerHTML = items.length ? items.map((it,i) => `
+    <div class="item-row">
+      <div>
+        <div class="item-name">${it.nama}</div>
+        <div class="item-sub">${fmt(it.harga)} × ${it.qty}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-weight:600;">${fmt(it.harga*it.qty)}</span>
+        <button class="del-btn" onclick="hapusItem(${i})">×</button>
+      </div>
+    </div>`).join('') : '<div class="empty">Belum ada item</div>';
+  document.getElementById('total-display').textContent = fmt(getTotal());
+  hitungKembalian();
+}
+
+function tambahItem() {
+  const nama = document.getElementById('nama').value.trim();
+  const harga = parseFloat(document.getElementById('harga').value) || 0;
+  const qty = parseInt(document.getElementById('qty').value) || 1;
+  if (!nama || harga <= 0) { alert('Nama dan harga wajib diisi!'); return; }
+  const idx = items.findIndex(i => i.nama.toLowerCase()===nama.toLowerCase() && i.harga===harga);
+  if (idx >= 0) items[idx].qty += qty;
+  else items.push({ nama, harga, qty });
+  document.getElementById('nama').value = '';
+  document.getElementById('harga').value = '';
+  document.getElementById('qty').value = '1';
+  document.getElementById('nama').focus();
+  renderItems();
+}
+
+function hapusItem(i) { items.splice(i,1); renderItems(); }
+
+function hitungKembalian() {
+  const bayar = parseFloat(document.getElementById('bayar').value) || 0;
+  const kem = bayar - getTotal();
+  const el = document.getElementById('kembalian-display');
+  el.textContent = fmt(Math.max(0, kem));
+  el.style.color = kem < 0 ? '#e24b4a' : '#1a1a2e';
+}
+
+function selesaiTransaksi() {
+  if (!items.length) { alert('Tidak ada item!'); return; }
+  const bayar = parseFloat(document.getElementById('bayar').value) || 0;
+  const total = getTotal();
+  if (bayar < total) { alert('Uang bayar kurang!'); return; }
+  txStore.unshift({ id: Date.now(), tanggal: today(), jam: nowTime(), items: [...items], total, bayar, kembalian: bayar - total });
+  save();
+  renderTxHariIni();
+  items = [];
+  document.getElementById('bayar').value = '';
+  renderItems();
+}
+
+function resetKasir() { items = []; document.getElementById('bayar').value = ''; renderItems(); }
+
+function cetakNota() {
+  if (!items.length) { alert('Tidak ada item!'); return; }
+  const bayar = parseFloat(document.getElementById('bayar').value) || 0;
+  const total = getTotal();
+  const kem = bayar - total;
+  const tgl = new Date().toLocaleString('id-ID');
+  const noNota = 'TRX-' + Date.now().toString().slice(-6);
+
+  const rows = items.map(it =>
+    `<tr><td>${it.nama} (${it.qty}x)</td><td align="right">${fmt(it.harga * it.qty)}</td></tr>`
+  ).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:monospace;font-size:13px;width:300px;margin:0 auto;padding:12px}
+    h2{text-align:center;margin:0 0 2px}
+    p{text-align:center;font-size:11px;margin:0}
+    hr{border:none;border-top:1px dashed #000;margin:8px 0}
+    table{width:100%;border-collapse:collapse}
+    td{padding:2px 0;font-size:12px}
+    .tot td{font-weight:bold;border-top:1px dashed #000;padding-top:6px}
+    .foot{text-align:center;font-size:11px;margin-top:10px}
+  </style></head><body>
+  <h2>KASIR DIGITAL</h2>
+  <p>${tgl}</p><p>No: ${noNota}</p>
+  <hr>
+  <table>${rows}
+  <tr class="tot"><td>TOTAL</td><td align="right">${fmt(total)}</td></tr>
+  ${bayar>0?`<tr><td>Bayar</td><td align="right">${fmt(bayar)}</td></tr><tr><td><b>Kembalian</b></td><td align="right"><b>${fmt(Math.max(0,kem))}</b></td></tr>`:''}
+  </table>
+  <hr><p class="foot">Terima kasih!</p>
+  </body></html>`;
+
+  let iframe = document.getElementById('print-frame');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'print-frame';
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;';
+    document.body.appendChild(iframe);
+  }
+
+  iframe.onload = function() {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  };
+
+  iframe.srcdoc = html;
+}
+
+function resetSemua() {
+  if (!confirm('Hapus semua data transaksi?')) return;
+  txStore = []; save(); renderRekap(); renderTxHariIni();
+}
+
+function resetHari() {
+  if (!confirm('Hapus semua transaksi hari ini?')) return;
+  txStore = txStore.filter(t => t.tanggal !== today());
+  save(); renderRekap(); renderTxHariIni();
+}
+
+function resetBulan() {
+  if (!confirm('Hapus semua transaksi bulan ini?')) return;
+  txStore = txStore.filter(t => txMonth(t) !== thisMonth());
+  save(); renderRekap(); renderTxHariIni();
+}
+
+function renderTxHariIni() {
+  const list = txStore.filter(t => t.tanggal === today());
+  document.getElementById('tx-hari-ini').innerHTML = list.length
+    ? list.slice(0,5).map(t => `<div class="tx-row"><span>${t.jam}</span><span class="tx-total">${fmt(t.total)}</span></div>`).join('')
+    : '<div class="empty" style="padding:10px 0;">Belum ada</div>';
+}
+
+function renderRekap() {
+  const todayTx = txStore.filter(t => t.tanggal === today());
+  const bulanTx = txStore.filter(t => txMonth(t) === thisMonth());
+  const sum = arr => arr.reduce((s,t) => s+t.total, 0);
+
+  document.getElementById('r-omset-hari').textContent = fmt(sum(todayTx));
+  document.getElementById('r-tx-hari').textContent = todayTx.length + ' transaksi';
+  document.getElementById('r-omset-bulan').textContent = fmt(sum(bulanTx));
+  document.getElementById('r-tx-bulan').textContent = bulanTx.length + ' transaksi';
+  document.getElementById('r-omset-total').textContent = fmt(sum(txStore));
+  document.getElementById('r-tx-total').textContent = txStore.length + ' transaksi';
+
+  const pMap = {};
+  txStore.forEach(tx => tx.items.forEach(it => {
+    if (!pMap[it.nama]) pMap[it.nama] = { nama: it.nama, qty: 0, omset: 0 };
+    pMap[it.nama].qty += it.qty;
+    pMap[it.nama].omset += it.harga * it.qty;
+  }));
+  const pList = Object.values(pMap).sort((a,b) => b.omset - a.omset);
+  document.getElementById('rekap-produk').innerHTML = pList.length
+    ? pList.slice(0,6).map((p,i) => `
+      <div class="item-row">
+        <div><div class="item-name">${p.nama}</div><div class="item-sub">${p.qty} terjual</div></div>
+        <div style="text-align:right;">
+          <div style="font-weight:600;">${fmt(p.omset)}</div>
+          ${i===0?'<span class="badge">🔥 terlaris</span>':''}
+        </div>
+      </div>`).join('')
+    : '<div class="empty">Belum ada data</div>';
+
+  document.getElementById('riwayat-tx').innerHTML = txStore.length
+    ? txStore.slice(0,8).map(t => `
+      <div class="tx-row">
+        <span>${t.tanggal} · ${t.jam}</span>
+        <span class="tx-total">${fmt(t.total)}</span>
+      </div>`).join('')
+    : '<div class="empty">Belum ada transaksi</div>';
+
+  const days = [], labels = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    days.push(d.toLocaleDateString('id-ID'));
+    labels.push(d.getDate()+'/'+(d.getMonth()+1));
+  }
+  const vals = days.map(d => txStore.filter(t=>t.tanggal===d).reduce((s,t)=>s+t.total,0));
+  const maxV = Math.max(...vals, 1);
+  document.getElementById('grafik-bar').innerHTML = vals.map((v,i) => {
+    const h = Math.max(Math.round(v/maxV*100), v>0?4:2);
+    return `<div class="bar-col">
+      <span class="bar-val">${v>0?fmt(v).replace('Rp ',''):'&nbsp;'}</span>
+      <div class="bar" style="height:${h}px;background:${i===6?'#534AB7':'#c5c2e8'};"></div>
+    </div>`;
+  }).join('');
+  document.getElementById('grafik-lbl').innerHTML = labels.map((l,i) =>
+    `<div style="flex:1;text-align:center;" class="bar-lbl ${i===6?'today':''}">${l}</div>`).join('');
+}
+
+renderItems();
+renderTxHariIni();
+</script>
+</body>
+</html>
